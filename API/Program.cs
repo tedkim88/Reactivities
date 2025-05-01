@@ -1,3 +1,5 @@
+using Application.Activities.Queries;
+using Application.Core;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -13,7 +15,9 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 //react 다른도메인 접근 허용할떄
 builder.Services.AddCors();
+builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
 
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 
 var app = builder.Build();
 
