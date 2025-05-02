@@ -1,31 +1,35 @@
-import { Box, Container, CssBaseline } from "@mui/material";
-import axios from "axios";
+import { Box, Container, CssBaseline, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import NavBar from "./NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
+import { useActivities } from "../../lib/hooks/useActivities";
 
 function App() {
-  const [activities, setActivities] = useState<Activity[]>([]);
+  // const [activities, setActivities] = useState<Activity[]>([]);
+
+
   const [selectedActivity, setSelectedActivity] = useState<Activity | undefined>(undefined);
   const [editMode, setEditMode] = useState(false);
+  const { activities, isPending } = useActivities();
 
-  useEffect(() => {
 
-    // fetch('https://localhost:5001/api/activities')
-    //   .then(response => response.json())
-    //   .then(data => setActivities(data))
+  // useEffect(() => {
 
-    axios.get<Activity[]>('https://localhost:5001/api/activities')
-      // .then(response => response.json())
-      //json파싱 알아서해줌. .data로바로접근.
-      .then(response => setActivities(response.data))
+  //   // fetch('https://localhost:5001/api/activities')
+  //   //   .then(response => response.json())
+  //   //   .then(data => setActivities(data))
 
-    return () => { }
-  }, [])
+  //   axios.get<Activity[]>('https://localhost:5001/api/activities')
+  //     // .then(response => response.json())
+  //     //json파싱 알아서해줌. .data로바로접근.
+  //     .then(response => setActivities(response.data))
+
+  //   return () => { }
+  // }, [])
 
 
   const handleSelectActivity = (id: string) => {
-    setSelectedActivity(activities.find(x => x.id === id));
+    setSelectedActivity(activities!.find(x => x.id === id));
   }
 
   const handleCancelSelectActivity = () => {
@@ -45,42 +49,54 @@ function App() {
   }
 
 
-  const handleSubmitForm = (activity: Activity) => {
-    if (activity.id) {
-      setActivities(activities.map(x => x.id === activity.id ? activity : x))
-    }
-    else {
-      const newActivity = { ...activity, id: activities.length.toString() };
-      setSelectedActivity(newActivity);
-      setActivities([...activities, newActivity]);
-    }
 
-    setEditMode(false);
-  }
+  // const handleSubmitForm = (activity: Activity) => {
+  //   //이게 edit할때쓰던방식... map으로 하나하나.근데 내가전달한update된 activity로 교체id가 일치할 시에
+  //   // if (activity.id) {
+  //   //   setActivities(activities.map(x => x.id === activity.id ? activity : x))
+  //   // }
+  //   // else {
+  //   //   const newActivity = { ...activity, id: activities.length.toString() };
+  //   //   setSelectedActivity(newActivity);
+  //   //   setActivities([...activities, newActivity]);
+  //   // }
+  //   console.log(activity);
+  //   setEditMode(false);
+  // }
 
-  const handleDelete = (id: string) => {
-    setActivities(activities.filter(x => x.id !== id));
-  }
+
+
+  // const handleDelete = (id: string) => {
+  //   console.log(id);
+  //   // setActivities(activities.filter(x => x.id !== id));
+  // }
 
 
 
 
   return (
-    <Box sx={{ bgcolor: '#eeeeee' }}>
+    <Box sx={{ bgcolor: '#eeeeee', minHeight: '100vh' }}>
       <CssBaseline />
       <NavBar openForm={handleOpenForm} />
       <Container maxWidth='xl' sx={{ mt: 3 }}>
-        <ActivityDashboard
-          activities={activities}
-          selectActivity={handleSelectActivity}
-          cancelSelectActivity={handleCancelSelectActivity}
-          selectedActivity={selectedActivity}
-          editMode={editMode}
-          openForm={handleOpenForm}
-          closeForm={handleFormClose}
-          submitForm={handleSubmitForm}
-          deleteActivity = {handleDelete}
-        />
+        {!activities || isPending ?
+          (
+            <Typography>Loading...</Typography>
+          ) : (
+            //loading이 아닐때만 밑에 Dash board를 띄우겠다.라는 의도의 ternary operator
+            <ActivityDashboard
+              activities={activities}
+              selectActivity={handleSelectActivity}
+              cancelSelectActivity={handleCancelSelectActivity}
+              selectedActivity={selectedActivity}
+              editMode={editMode}
+              openForm={handleOpenForm}
+              closeForm={handleFormClose}
+              // submitForm={handleSubmitForm}
+              // deleteActivity={handleDelete}
+            />
+          )}
+
       </Container>
     </Box>
   )
